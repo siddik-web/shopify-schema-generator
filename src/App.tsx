@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Copy, Plus, Trash2, Settings, Save, FolderOpen, X, FilePlus } from 'lucide-react';
+import { Copy, Plus, Trash2, Settings, Save, FolderOpen, X, FilePlus, Download } from 'lucide-react';
 
 type SchemaField = {
   type: string;
@@ -48,7 +48,6 @@ function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [saveMessage, setSaveMessage] = useState('');
 
-  // Load projects from localStorage on mount
   useEffect(() => {
     const savedProjects = localStorage.getItem('shopifySchemaProjects');
     if (savedProjects) {
@@ -159,6 +158,18 @@ function App() {
     const newProjects = projects.filter(p => p.id !== projectId);
     setProjects(newProjects);
     localStorage.setItem('shopifySchemaProjects', JSON.stringify(newProjects));
+  };
+
+  const downloadJson = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -388,13 +399,22 @@ function App() {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold">Schema</h2>
-                <button
-                  onClick={() => copyToClipboard(generateSchema(), setCopiedSchema)}
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-                >
-                  <Copy className="w-4 h-4" />
-                  {copiedSchema ? 'Copied!' : 'Copy'}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => downloadJson(generateSchema(), `${name.toLowerCase().replace(/\s+/g, '_')}_schema.json`)}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download
+                  </button>
+                  <button
+                    onClick={() => copyToClipboard(generateSchema(), setCopiedSchema)}
+                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                  >
+                    <Copy className="w-4 h-4" />
+                    {copiedSchema ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
               </div>
               <pre className="bg-gray-50 p-4 rounded-md overflow-x-auto">
                 <code>{generateSchema()}</code>
@@ -404,13 +424,22 @@ function App() {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold">Locales (en.default.json)</h2>
-                <button
-                  onClick={() => copyToClipboard(generateLocales(), setCopiedLocales)}
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-                >
-                  <Copy className="w-4 h-4" />
-                  {copiedLocales ? 'Copied!' : 'Copy'}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => downloadJson(generateLocales(), `${name.toLowerCase().replace(/\s+/g, '_')}_locales.json`)}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download
+                  </button>
+                  <button
+                    onClick={() => copyToClipboard(generateLocales(), setCopiedLocales)}
+                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                  >
+                    <Copy className="w-4 h-4" />
+                    {copiedLocales ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
               </div>
               <pre className="bg-gray-50 p-4 rounded-md overflow-x-auto">
                 <code>{generateLocales()}</code>
